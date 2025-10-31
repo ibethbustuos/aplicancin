@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio - Life Organizer{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <!-- Hero Section -->
+        <div class="health-card text-center">
+            <h1 class="display-4 mb-4">
+                <i class="fas fa-heartbeat me-3"></i>Life Organizer
+            </h1>
+            <p class="lead mb-4">
+                Tu compañero digital para una vida más saludable y organizada
+            </p>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <i class="fas fa-heartbeat me-2"></i>
+                        <span>Monitoreo de Salud</span>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <i class="fas fa-tasks me-2"></i>
+                        <span>Gestión de Tareas</span>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <i class="fas fa-chart-line me-2"></i>
+                        <span>Análisis de Datos</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="row mt-5">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-tint stat-icon text-primary"></i>
+                        <h5 class="card-title">Seguimiento de Hidratación</h5>
+                        <p class="card-text">
+                            Monitorea tu consumo diario de agua y recibe recordatorios para mantenerte hidratado.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-heartbeat stat-icon text-danger"></i>
+                        <h5 class="card-title">Presión Arterial</h5>
+                        <p class="card-text">
+                            Registra y analiza tu presión arterial con alertas automáticas para valores preocupantes.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-weight stat-icon text-success"></i>
+                        <h5 class="card-title">Control de Peso</h5>
+                        <p class="card-text">
+                            Seguimiento de peso con análisis de tendencias y metas personalizadas.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-utensils stat-icon text-warning"></i>
+                        <h5 class="card-title">Seguimiento de Comidas</h5>
+                        <p class="card-text">
+                            Registra tus comidas diarias y recibe consejos nutricionales personalizados.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-dumbbell stat-icon text-info"></i>
+                        <h5 class="card-title">Ejercicio y Actividad</h5>
+                        <p class="card-text">
+                            Registra tu actividad física y mantén un estilo de vida activo.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-bar stat-icon text-secondary"></i>
+                        <h5 class="card-title">Análisis y Reportes</h5>
+                        <p class="card-text">
+                            Visualiza tus datos de salud con gráficos interactivos y análisis estadísticos.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="text-center mt-5">
+            <h3 class="mb-4">¿Listo para comenzar tu viaje hacia una vida más saludable?</h3>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{{ url_for('main.register') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-user-plus me-2"></i>Comenzar Ahora
+                </a>
+                <a href="{{ url_for('main.login') }}" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-sign-in-alt me-2"></i>Ya tengo cuenta
+                </a>
+            </div>
+        </div>
+
+        <!-- Technology Stack -->
+        <div class="mt-5">
+            <h4 class="text-center mb-4">Tecnologías Utilizadas</h4>
+            <div class="row text-center">
+                <div class="col-md-2 col-4 mb-3">
+                    <div class="p-3">
+                        <i class="fab fa-python fa-3x text-primary mb-2"></i>
+                        <div>Python</div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-4 mb-3">
+                    <div class="p-3">
+                        <i class="fas fa-server fa-3x text-success mb-2"></i>
+                        <div>Flask</div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-4 mb-3">
+                    <div class="p-3">
+                        <i class="fas fa-database fa-3x text-warning mb-2"></i>
+                        <div>SQLite</div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-4 mb-3">
+                    <div class="p-3">
+                        <i class="fas fa-chart-line fa-3x text-info mb-2"></i>
+                        <div>Pandas</div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-4 mb-3">
+                    <div class="p-3">
+                        <i class="fas fa-chart-bar fa-3x text-danger mb-2"></i>
+                        <div>Matplotlib</div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-4 mb-3">
+                    <div class="p-3">
+                        <i class="fab fa-bootstrap fa-3x text-purple mb-2"></i>
+                        <div>Bootstrap</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

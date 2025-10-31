@@ -1,0 +1,53 @@
+=================================================================
+  LIFE ORGANIZER - ACCESO DESDE TU CELULAR
+=================================================================
+
+📱 INSTRUCCIONES PARA ACCEDER DESDE TU CELULAR ANDROID:
+
+1. Asegúrate de que tu celular esté conectado a la misma red WiFi 
+   que tu computadora.
+
+2. Abre tu navegador móvil (Chrome, Firefox, Samsung Internet, etc.)
+
+3. Escribe esta dirección:
+   
+   http://192.168.20.28:5000
+   
+   O escanea este código QR (si tienes un lector de QR)
+
+4. ¡Listo! Ya puedes usar la aplicación desde tu celular.
+
+=================================================================
+
+💡 TIP: Para crear un acceso directo en tu pantalla de inicio:
+
+   Android:
+   - Toca el menú (⋮) en tu navegador
+   - Selecciona "Añadir a pantalla de inicio" o "Instalar"
+   - La aplicación aparecerá como un icono en tu pantalla principal
+
+=================================================================
+
+🌐 PÁGINAS DISPONIBLES:
+
+   Inicio:      http://192.168.20.28:5000
+   Registro:    http://192.168.20.28:5000/register
+   Login:       http://192.168.20.28:5000/login
+   Dashboard:   http://192.168.20.28:5000/dashboard
+   Salud:       http://192.168.20.28:5000/health-tracker
+   Análisis:    http://192.168.20.28:5000/analytics
+
+=================================================================
+
+⚠️ IMPORTANTE:
+
+   - La aplicación debe estar corriendo en tu computadora
+   - Solo funciona mientras tu computadora esté encendida
+   - Solo funciona en la misma red WiFi
+
+=================================================================
+
+ Para detener la aplicación, presiona Ctrl+C en la terminal
+
+=================================================================
+

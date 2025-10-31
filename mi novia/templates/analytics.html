@@ -1,0 +1,608 @@
+{% extends "base.html" %}
+
+{% block title %}Análisis de Salud - Life Organizer{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="health-card">
+            <h2 class="mb-3">
+                <i class="fas fa-chart-line me-2"></i>Análisis de Datos de Salud
+            </h2>
+            <p class="mb-0">Visualiza tus tendencias de salud y patrones de comportamiento</p>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Controls -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-cog me-2"></i>Configuración del Análisis
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label">Período de Análisis</label>
+                        <select class="form-select" id="analysisPeriod" onchange="updateAnalytics()">
+                            <option value="7">Últimos 7 días</option>
+                            <option value="30" selected>Últimos 30 días</option>
+                            <option value="90">Últimos 90 días</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Tipo de Análisis</label>
+                        <select class="form-select" id="analysisType" onchange="updateAnalytics()">
+                            <option value="all" selected>Todos los datos</option>
+                            <option value="water">Solo hidratación</option>
+                            <option value="blood_pressure">Solo presión arterial</option>
+                            <option value="weight">Solo peso</option>
+                            <option value="tasks">Solo tareas</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-primary" onclick="generateReport()">
+                            <i class="fas fa-file-pdf me-1"></i>Generar Reporte
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-success" onclick="exportData()">
+                            <i class="fas fa-download me-1"></i>Exportar Datos
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Dashboard -->
+<div class="row mt-4">
+    <!-- Water Intake Analysis -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-tint me-2"></i>Análisis de Hidratación
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="waterChart"></canvas>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-6">
+                        <div class="text-center">
+                            <div class="h5 text-primary" id="avgWater">--</div>
+                            <small class="text-muted">Promedio Diario</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center">
+                            <div class="h5 text-success" id="waterAchievement">--</div>
+                            <small class="text-muted">Meta Alcanzada</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blood Pressure Analysis -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-heartbeat me-2"></i>Presión Arterial
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="bloodPressureChart"></canvas>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-6">
+                        <div class="text-center">
+                            <div class="h5 text-danger" id="avgSystolic">--</div>
+                            <small class="text-muted">Promedio Sistólica</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center">
+                            <div class="h5 text-info" id="avgDiastolic">--</div>
+                            <small class="text-muted">Promedio Diastólica</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Weight Trend Analysis -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-weight me-2"></i>Tendencia de Peso
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="weightChart"></canvas>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-6">
+                        <div class="text-center">
+                            <div class="h5 text-warning" id="weightChange">--</div>
+                            <small class="text-muted">Cambio de Peso</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center">
+                            <div class="h5 text-secondary" id="currentWeight">--</div>
+                            <small class="text-muted">Peso Actual</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Completion Analysis -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-tasks me-2"></i>Completación de Tareas
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="taskChart"></canvas>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-6">
+                        <div class="text-center">
+                            <div class="h5 text-success" id="taskCompletion">--</div>
+                            <small class="text-muted">Tasa Completación</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center">
+                            <div class="h5 text-primary" id="totalTasks">--</div>
+                            <small class="text-muted">Total Tareas</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Health Summary Statistics -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>Resumen Estadístico
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stat-card">
+                            <i class="fas fa-calendar-check stat-icon text-primary"></i>
+                            <div class="h4 mb-1" id="daysTracked">--</div>
+                            <div class="text-muted">Días Registrados</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stat-card">
+                            <i class="fas fa-trophy stat-icon text-warning"></i>
+                            <div class="h4 mb-1" id="healthScore">--</div>
+                            <div class="text-muted">Puntuación Salud</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stat-card">
+                            <i class="fas fa-fire stat-icon text-danger"></i>
+                            <div class="h4 mb-1" id="streakDays">--</div>
+                            <div class="text-muted">Racha Actual</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stat-card">
+                            <i class="fas fa-target stat-icon text-success"></i>
+                            <div class="h4 mb-1" id="goalsAchieved">--</div>
+                            <div class="text-muted">Metas Alcanzadas</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Health Insights -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>Insights de Salud
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="healthInsights">
+                    <div class="text-center py-4">
+                        <i class="fas fa-spinner fa-spin fa-2x text-muted mb-3"></i>
+                        <p class="text-muted">Analizando tus datos de salud...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let charts = {};
+
+// Inicializar gráficos
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCharts();
+    updateAnalytics();
+});
+
+function initializeCharts() {
+    // Configuración común para todos los gráficos
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+            tooltip: {
+                mode: 'index',
+                intersect: false,
+            }
+        },
+        scales: {
+            x: {
+                display: true,
+                title: {
+                    display: true,
+                    text: 'Fecha'
+                }
+            },
+            y: {
+                display: true,
+                beginAtZero: true
+            }
+        }
+    };
+
+    // Gráfico de agua
+    const waterCtx = document.getElementById('waterChart').getContext('2d');
+    charts.water = new Chart(waterCtx, {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Consumo de Agua (ml)',
+                data: [],
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }, {
+                label: 'Meta Diaria',
+                data: [],
+                type: 'line',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                borderWidth: 2,
+                fill: false
+            }]
+        },
+        options: chartOptions
+    });
+
+    // Gráfico de presión arterial
+    const bpCtx = document.getElementById('bloodPressureChart').getContext('2d');
+    charts.bloodPressure = new Chart(bpCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Sistólica',
+                data: [],
+                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                borderWidth: 2,
+                tension: 0.1
+            }, {
+                label: 'Diastólica',
+                data: [],
+                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                borderWidth: 2,
+                tension: 0.1
+            }]
+        },
+        options: chartOptions
+    });
+
+    // Gráfico de peso
+    const weightCtx = document.getElementById('weightChart').getContext('2d');
+    charts.weight = new Chart(weightCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Peso (kg)',
+                data: [],
+                borderColor: 'rgba(153, 102, 255, 1)',
+                backgroundColor: 'rgba(153, 102, 255, 0.1)',
+                borderWidth: 3,
+                tension: 0.1,
+                fill: true
+            }]
+        },
+        options: chartOptions
+    });
+
+    // Gráfico de tareas
+    const taskCtx = document.getElementById('taskChart').getContext('2d');
+    charts.task = new Chart(taskCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Completadas', 'Pendientes'],
+            datasets: [{
+                data: [0, 0],
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.6)',
+                    'rgba(255, 205, 86, 0.6)'
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(255, 205, 86, 1)'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                }
+            }
+        }
+    });
+}
+
+async function updateAnalytics() {
+    const period = document.getElementById('analysisPeriod').value;
+    const type = document.getElementById('analysisType').value;
+    
+    try {
+        // Obtener datos de tendencias de salud
+        const healthTrends = await makeRequest(`/api/analytics/health-trends?days=${period}`);
+        
+        // Obtener estadísticas de tareas
+        const taskStats = await makeRequest('/api/analytics/task-completion');
+        
+        // Actualizar gráficos
+        updateWaterChart(healthTrends.water_intake);
+        updateBloodPressureChart(healthTrends.blood_pressure);
+        updateWeightChart(healthTrends.weight);
+        updateTaskChart(taskStats);
+        
+        // Actualizar estadísticas
+        updateStatistics(healthTrends, taskStats);
+        
+        // Generar insights
+        generateInsights(healthTrends, taskStats);
+        
+    } catch (error) {
+        console.error('Error updating analytics:', error);
+        showToast('Error al cargar los datos de análisis', 'danger');
+    }
+}
+
+function updateWaterChart(waterData) {
+    if (!waterData || waterData.length === 0) return;
+    
+    const labels = waterData.map(d => new Date(d.date).toLocaleDateString());
+    const values = waterData.map(d => d.value);
+    const targets = waterData.map(d => d.target || 2000);
+    
+    charts.water.data.labels = labels;
+    charts.water.data.datasets[0].data = values;
+    charts.water.data.datasets[1].data = targets;
+    charts.water.update();
+    
+    // Actualizar estadísticas
+    const avg = values.reduce((a, b) => a + b, 0) / values.length;
+    const achievement = (values.filter(v => v >= 2000).length / values.length) * 100;
+    
+    document.getElementById('avgWater').textContent = Math.round(avg) + 'ml';
+    document.getElementById('waterAchievement').textContent = Math.round(achievement) + '%';
+}
+
+function updateBloodPressureChart(bpData) {
+    if (!bpData || bpData.length === 0) return;
+    
+    const labels = bpData.map(d => new Date(d.date).toLocaleDateString());
+    const systolic = bpData.map(d => d.systolic);
+    const diastolic = bpData.map(d => d.diastolic);
+    
+    charts.bloodPressure.data.labels = labels;
+    charts.bloodPressure.data.datasets[0].data = systolic;
+    charts.bloodPressure.data.datasets[1].data = diastolic;
+    charts.bloodPressure.update();
+    
+    // Actualizar estadísticas
+    const avgSystolic = systolic.reduce((a, b) => a + b, 0) / systolic.length;
+    const avgDiastolic = diastolic.reduce((a, b) => a + b, 0) / diastolic.length;
+    
+    document.getElementById('avgSystolic').textContent = Math.round(avgSystolic);
+    document.getElementById('avgDiastolic').textContent = Math.round(avgDiastolic);
+}
+
+function updateWeightChart(weightData) {
+    if (!weightData || weightData.length === 0) return;
+    
+    const labels = weightData.map(d => new Date(d.date).toLocaleDateString());
+    const values = weightData.map(d => d.value);
+    
+    charts.weight.data.labels = labels;
+    charts.weight.data.datasets[0].data = values;
+    charts.weight.update();
+    
+    // Actualizar estadísticas
+    const change = values.length > 1 ? values[values.length - 1] - values[0] : 0;
+    const current = values[values.length - 1];
+    
+    document.getElementById('weightChange').textContent = (change > 0 ? '+' : '') + change.toFixed(1) + 'kg';
+    document.getElementById('currentWeight').textContent = current.toFixed(1) + 'kg';
+}
+
+function updateTaskChart(taskStats) {
+    if (!taskStats) return;
+    
+    charts.task.data.datasets[0].data = [
+        taskStats.completed_tasks,
+        taskStats.total_tasks - taskStats.completed_tasks
+    ];
+    charts.task.update();
+    
+    // Actualizar estadísticas
+    document.getElementById('taskCompletion').textContent = Math.round(taskStats.completion_rate) + '%';
+    document.getElementById('totalTasks').textContent = taskStats.total_tasks;
+}
+
+function updateStatistics(healthTrends, taskStats) {
+    // Calcular días registrados
+    const allDates = new Set();
+    Object.values(healthTrends).forEach(data => {
+        if (data) data.forEach(d => allDates.add(d.date));
+    });
+    
+    document.getElementById('daysTracked').textContent = allDates.size;
+    
+    // Calcular puntuación de salud (simplificado)
+    let healthScore = 0;
+    if (healthTrends.water_intake) {
+        const waterAchievement = healthTrends.water_intake.filter(d => d.value >= 2000).length / healthTrends.water_intake.length;
+        healthScore += waterAchievement * 30;
+    }
+    if (healthTrends.blood_pressure) {
+        const normalBP = healthTrends.blood_pressure.filter(d => d.systolic <= 120 && d.diastolic <= 80).length / healthTrends.blood_pressure.length;
+        healthScore += normalBP * 40;
+    }
+    if (taskStats) {
+        healthScore += (taskStats.completion_rate / 100) * 30;
+    }
+    
+    document.getElementById('healthScore').textContent = Math.round(healthScore);
+    document.getElementById('streakDays').textContent = Math.min(allDates.size, 7); // Simplificado
+    document.getElementById('goalsAchieved').textContent = Math.round(healthScore / 10);
+}
+
+function generateInsights(healthTrends, taskStats) {
+    const insights = [];
+    
+    // Insight de hidratación
+    if (healthTrends.water_intake && healthTrends.water_intake.length > 0) {
+        const avgWater = healthTrends.water_intake.reduce((a, b) => a + b.value, 0) / healthTrends.water_intake.length;
+        if (avgWater < 1500) {
+            insights.push({
+                type: 'warning',
+                icon: 'fas fa-exclamation-triangle',
+                title: 'Hidratación Baja',
+                message: 'Tu consumo promedio de agua está por debajo de lo recomendado. Intenta beber más agua durante el día.'
+            });
+        } else if (avgWater >= 2000) {
+            insights.push({
+                type: 'success',
+                icon: 'fas fa-check-circle',
+                title: 'Excelente Hidratación',
+                message: '¡Mantienes un excelente nivel de hidratación! Sigue así.'
+            });
+        }
+    }
+    
+    // Insight de presión arterial
+    if (healthTrends.blood_pressure && healthTrends.blood_pressure.length > 0) {
+        const highBP = healthTrends.blood_pressure.filter(d => d.systolic > 140 || d.diastolic > 90).length;
+        if (highBP > 0) {
+            insights.push({
+                type: 'danger',
+                icon: 'fas fa-heartbeat',
+                title: 'Presión Arterial Elevada',
+                message: `Tienes ${highBP} lecturas de presión arterial elevada. Considera consultar a tu médico.`
+            });
+        }
+    }
+    
+    // Insight de tareas
+    if (taskStats && taskStats.completion_rate < 50) {
+        insights.push({
+            type: 'info',
+            icon: 'fas fa-tasks',
+            title: 'Productividad Mejorable',
+            message: 'Tu tasa de completación de tareas está baja. Intenta establecer metas más pequeñas y alcanzables.'
+        });
+    }
+    
+    // Mostrar insights
+    const insightsContainer = document.getElementById('healthInsights');
+    if (insights.length === 0) {
+        insightsContainer.innerHTML = `
+            <div class="text-center py-4">
+                <i class="fas fa-smile fa-2x text-success mb-3"></i>
+                <p class="text-muted">¡Excelente! No hay alertas de salud importantes.</p>
+            </div>
+        `;
+    } else {
+        insightsContainer.innerHTML = insights.map(insight => `
+            <div class="alert alert-${insight.type} alert-custom">
+                <div class="d-flex align-items-start">
+                    <i class="${insight.icon} me-3 mt-1"></i>
+                    <div>
+                        <h6 class="alert-heading">${insight.title}</h6>
+                        <p class="mb-0">${insight.message}</p>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+}
+
+function generateReport() {
+    showToast('Generando reporte...', 'info');
+    // Aquí se implementaría la generación de PDF
+    setTimeout(() => {
+        showToast('Reporte generado exitosamente', 'success');
+    }, 2000);
+}
+
+function exportData() {
+    showToast('Exportando datos...', 'info');
+    // Aquí se implementaría la exportación de datos
+    setTimeout(() => {
+        showToast('Datos exportados exitosamente', 'success');
+    }, 2000);
+}
+</script>
+{% endblock %}

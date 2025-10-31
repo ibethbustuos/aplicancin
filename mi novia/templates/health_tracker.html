@@ -1,0 +1,565 @@
+{% extends "base.html" %}
+
+{% block title %}Seguimiento de Salud - Life Organizer{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="health-card">
+            <h2 class="mb-3">
+                <i class="fas fa-heartbeat me-2"></i>Seguimiento de Salud
+            </h2>
+            <p class="mb-0">Monitorea todos tus indicadores de salud en un solo lugar</p>
+        </div>
+    </div>
+</div>
+
+<!-- Health Tracking Cards -->
+<div class="row mt-4">
+    <!-- Water Intake -->
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-tint fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Hidratación</h5>
+                <div class="progress-circle mb-3">
+                    <div class="progress-text" id="waterProgress">0%</div>
+                </div>
+                <p class="card-text">
+                    <span id="waterIntake">{{ health_data.water_intake if health_data else 0 }}</span>ml / 
+                    <span id="waterTarget">{{ health_data.water_target if health_data else 2000 }}</span>ml
+                </p>
+                <div class="btn-group w-100" role="group">
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="addWater(250)">+250ml</button>
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="addWater(500)">+500ml</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blood Pressure -->
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-heartbeat fa-3x text-danger mb-3"></i>
+                <h5 class="card-title">Presión Arterial</h5>
+                <div class="h3 mb-2" id="bloodPressureDisplay">
+                    {{ health_data.systolic_pressure if health_data else '--' }}/{{ health_data.diastolic_pressure if health_data else '--' }}
+                </div>
+                <p class="text-muted mb-3">mmHg</p>
+                <button type="button" class="btn btn-danger" onclick="showBloodPressureModal()">
+                    <i class="fas fa-plus me-1"></i>Registrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weight -->
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-weight fa-3x text-warning mb-3"></i>
+                <h5 class="card-title">Peso</h5>
+                <div class="h3 mb-2" id="weightDisplay">
+                    {{ health_data.weight if health_data else '--' }}
+                </div>
+                <p class="text-muted mb-3">kg</p>
+                <button type="button" class="btn btn-warning" onclick="showWeightModal()">
+                    <i class="fas fa-plus me-1"></i>Registrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exercise -->
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-dumbbell fa-3x text-success mb-3"></i>
+                <h5 class="card-title">Ejercicio</h5>
+                <div class="h3 mb-2" id="exerciseDisplay">
+                    {{ health_data.exercise_minutes if health_data else 0 }}
+                </div>
+                <p class="text-muted mb-3">minutos</p>
+                <button type="button" class="btn btn-success" onclick="showExerciseModal()">
+                    <i class="fas fa-plus me-1"></i>Agregar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Meals Tracking -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-utensils me-2"></i>Seguimiento de Comidas
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="meal-card" onclick="toggleMeal('breakfast')">
+                            <div class="meal-icon">
+                                <i class="fas fa-coffee fa-2x"></i>
+                            </div>
+                            <h6>Desayuno</h6>
+                            <div class="meal-status" id="breakfastStatus">
+                                {% if health_data and health_data.breakfast_completed %}
+                                    <i class="fas fa-check-circle text-success"></i>
+                                    <span class="text-success">Completado</span>
+                                {% else %}
+                                    <i class="fas fa-circle text-muted"></i>
+                                    <span class="text-muted">Pendiente</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <div class="meal-card" onclick="toggleMeal('lunch')">
+                            <div class="meal-icon">
+                                <i class="fas fa-hamburger fa-2x"></i>
+                            </div>
+                            <h6>Almuerzo</h6>
+                            <div class="meal-status" id="lunchStatus">
+                                {% if health_data and health_data.lunch_completed %}
+                                    <i class="fas fa-check-circle text-success"></i>
+                                    <span class="text-success">Completado</span>
+                                {% else %}
+                                    <i class="fas fa-circle text-muted"></i>
+                                    <span class="text-muted">Pendiente</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <div class="meal-card" onclick="toggleMeal('dinner')">
+                            <div class="meal-icon">
+                                <i class="fas fa-utensils fa-2x"></i>
+                            </div>
+                            <h6>Cena</h6>
+                            <div class="meal-status" id="dinnerStatus">
+                                {% if health_data and health_data.dinner_completed %}
+                                    <i class="fas fa-check-circle text-success"></i>
+                                    <span class="text-success">Completado</span>
+                                {% else %}
+                                    <i class="fas fa-circle text-muted"></i>
+                                    <span class="text-muted">Pendiente</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Health Summary -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-pie me-2"></i>Resumen del Día
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="text-center">
+                            <div class="h4 text-primary" id="waterPercentage">0%</div>
+                            <small class="text-muted">Hidratación</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="text-center">
+                            <div class="h4 text-success" id="mealsCompleted">0</div>
+                            <small class="text-muted">Comidas</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="text-center">
+                            <div class="h4 text-warning" id="exerciseMinutes">0</div>
+                            <small class="text-muted">Ejercicio (min)</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="text-center">
+                            <div class="h4 text-info" id="healthScore">85</div>
+                            <small class="text-muted">Salud Score</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+<!-- Blood Pressure Modal -->
+<div class="modal fade" id="bloodPressureModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-heartbeat me-2"></i>Registrar Presión Arterial
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-6">
+                        <label class="form-label">Sistólica</label>
+                        <input type="number" class="form-control" id="systolicInput" placeholder="120">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Diastólica</label>
+                        <input type="number" class="form-control" id="diastolicInput" placeholder="80">
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <strong>Referencias:</strong><br>
+                        Normal: &lt; 120/80<br>
+                        Elevada: 120-129/&lt;80<br>
+                        Etapa 1: 130-139/80-89<br>
+                        Etapa 2: ≥140/≥90
+                    </small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveBloodPressure()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Weight Modal -->
+<div class="modal fade" id="weightModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-weight me-2"></i>Registrar Peso
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Peso (kg)</label>
+                    <input type="number" class="form-control" id="weightInput" placeholder="70.0" step="0.1">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveWeight()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Exercise Modal -->
+<div class="modal fade" id="exerciseModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-dumbbell me-2"></i>Registrar Ejercicio
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Minutos de Ejercicio</label>
+                    <input type="number" class="form-control" id="exerciseMinutes" placeholder="30" min="1">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Tipo de Ejercicio</label>
+                    <select class="form-select" id="exerciseType">
+                        <option value="cardio">Cardio</option>
+                        <option value="strength">Fuerza</option>
+                        <option value="yoga">Yoga</option>
+                        <option value="walking">Caminar</option>
+                        <option value="running">Correr</option>
+                        <option value="cycling">Ciclismo</option>
+                        <option value="swimming">Natación</option>
+                        <option value="other">Otro</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveExercise()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.meal-card {
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 15px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.meal-card:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.meal-card.completed {
+    border-color: var(--success-color);
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.meal-icon {
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.meal-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.progress-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: conic-gradient(var(--primary-color) 0deg, #e5e7eb 0deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin: 0 auto;
+}
+
+.progress-circle::before {
+    content: '';
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: white;
+    position: absolute;
+}
+
+.progress-text {
+    position: relative;
+    z-index: 1;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Funciones para interactuar con la API
+async function addWater(amount) {
+    try {
+        const response = await makeRequest('/api/health/water', {
+            method: 'POST',
+            body: JSON.stringify({ amount: amount })
+        });
+        
+        if (response.success) {
+            showToast(`Agregados ${amount}ml de agua`, 'success');
+            updateWaterDisplay(response.water_intake);
+        }
+    } catch (error) {
+        console.error('Error adding water:', error);
+    }
+}
+
+async function toggleMeal(mealType) {
+    try {
+        const response = await makeRequest('/api/health/meal', {
+            method: 'POST',
+            body: JSON.stringify({ meal_type: mealType })
+        });
+        
+        if (response.success) {
+            showToast(`${mealType} registrado`, 'success');
+            updateMealStatus(mealType);
+        }
+    } catch (error) {
+        console.error('Error toggling meal:', error);
+    }
+}
+
+async function saveBloodPressure() {
+    const systolic = document.getElementById('systolicInput').value;
+    const diastolic = document.getElementById('diastolicInput').value;
+    
+    if (!systolic || !diastolic) {
+        showToast('Por favor completa ambos valores', 'warning');
+        return;
+    }
+    
+    try {
+        const response = await makeRequest('/api/health/blood-pressure', {
+            method: 'POST',
+            body: JSON.stringify({ 
+                systolic: parseInt(systolic), 
+                diastolic: parseInt(diastolic) 
+            })
+        });
+        
+        if (response.success) {
+            showToast('Presión arterial registrada', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('bloodPressureModal')).hide();
+            updateBloodPressureDisplay(systolic, diastolic);
+        }
+    } catch (error) {
+        console.error('Error saving blood pressure:', error);
+    }
+}
+
+async function saveWeight() {
+    const weight = document.getElementById('weightInput').value;
+    
+    if (!weight) {
+        showToast('Por favor ingresa tu peso', 'warning');
+        return;
+    }
+    
+    try {
+        const response = await makeRequest('/api/health/weight', {
+            method: 'POST',
+            body: JSON.stringify({ weight: parseFloat(weight) })
+        });
+        
+        if (response.success) {
+            showToast('Peso registrado', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('weightModal')).hide();
+            updateWeightDisplay(weight);
+        }
+    } catch (error) {
+        console.error('Error saving weight:', error);
+    }
+}
+
+async function saveExercise() {
+    const minutes = document.getElementById('exerciseMinutes').value;
+    const type = document.getElementById('exerciseType').value;
+    
+    if (!minutes) {
+        showToast('Por favor ingresa los minutos de ejercicio', 'warning');
+        return;
+    }
+    
+    try {
+        const response = await makeRequest('/api/health/exercise', {
+            method: 'POST',
+            body: JSON.stringify({ 
+                minutes: parseInt(minutes),
+                type: type
+            })
+        });
+        
+        if (response.success) {
+            showToast('Ejercicio registrado', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('exerciseModal')).hide();
+            updateExerciseDisplay(minutes);
+        }
+    } catch (error) {
+        console.error('Error saving exercise:', error);
+    }
+}
+
+// Funciones para mostrar modales
+function showBloodPressureModal() {
+    new bootstrap.Modal(document.getElementById('bloodPressureModal')).show();
+}
+
+function showWeightModal() {
+    new bootstrap.Modal(document.getElementById('weightModal')).show();
+}
+
+function showExerciseModal() {
+    new bootstrap.Modal(document.getElementById('exerciseModal')).show();
+}
+
+// Funciones para actualizar la UI
+function updateWaterDisplay(waterIntake) {
+    const waterTarget = {{ health_data.water_target if health_data else 2000 }};
+    const percentage = (waterIntake / waterTarget) * 100;
+    
+    document.getElementById('waterIntake').textContent = waterIntake;
+    document.getElementById('waterPercentage').textContent = Math.round(percentage) + '%';
+    
+    const progressCircle = document.querySelector('.progress-circle');
+    if (progressCircle) {
+        progressCircle.style.background = `conic-gradient(var(--primary-color) ${percentage * 3.6}deg, #e5e7eb 0deg)`;
+        progressCircle.querySelector('.progress-text').textContent = Math.round(percentage) + '%';
+    }
+}
+
+function updateMealStatus(mealType) {
+    const statusElement = document.getElementById(mealType + 'Status');
+    const mealCard = statusElement.closest('.meal-card');
+    
+    if (statusElement.querySelector('.fa-check-circle')) {
+        // Cambiar a pendiente
+        statusElement.innerHTML = '<i class="fas fa-circle text-muted"></i><span class="text-muted">Pendiente</span>';
+        mealCard.classList.remove('completed');
+    } else {
+        // Cambiar a completado
+        statusElement.innerHTML = '<i class="fas fa-check-circle text-success"></i><span class="text-success">Completado</span>';
+        mealCard.classList.add('completed');
+    }
+    
+    updateMealsSummary();
+}
+
+function updateBloodPressureDisplay(systolic, diastolic) {
+    document.getElementById('bloodPressureDisplay').textContent = `${systolic}/${diastolic}`;
+}
+
+function updateWeightDisplay(weight) {
+    document.getElementById('weightDisplay').textContent = weight;
+}
+
+function updateExerciseDisplay(minutes) {
+    const currentMinutes = parseInt(document.getElementById('exerciseDisplay').textContent) || 0;
+    const newMinutes = currentMinutes + parseInt(minutes);
+    document.getElementById('exerciseDisplay').textContent = newMinutes;
+    document.getElementById('exerciseMinutes').textContent = newMinutes;
+}
+
+function updateMealsSummary() {
+    const completedMeals = document.querySelectorAll('.meal-card.completed').length;
+    document.getElementById('mealsCompleted').textContent = completedMeals;
+}
+
+// Inicializar la página
+document.addEventListener('DOMContentLoaded', function() {
+    // Actualizar progreso de agua
+    const waterIntake = {{ health_data.water_intake if health_data else 0 }};
+    const waterTarget = {{ health_data.water_target if health_data else 2000 }};
+    updateWaterDisplay(waterIntake);
+    
+    // Actualizar resumen de comidas
+    updateMealsSummary();
+    
+    // Actualizar minutos de ejercicio
+    const exerciseMinutes = {{ health_data.exercise_minutes if health_data else 0 }};
+    document.getElementById('exerciseMinutes').textContent = exerciseMinutes;
+});
+</script>
+{% endblock %}
